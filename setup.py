@@ -9,33 +9,27 @@ from setuptools import setup
 import sys
 
 APP = 'lifesaver.py'
-DATA_FILES = []
+DATA_FILES = ['icon.png']
 OPTIONS = {}
-INCLUDES = ["PySide.QtCore",
-            "PySide.QtGui",
-            "PySide.QtWebKit",
-            "PySide.QtNetwork",
-            "PySide.QtXml"]
-WIN_DLL_INCLUDE = ["w9xpopen.exe",
-                   "msvcr71.dll",
-                   "MSVCP90.dll"],
+
 
 if sys.platform == "win32":
     # python setup.py py2exe
     import py2exe
 
     platform_options = {
-        "windows": [{
-                        "script": APP,
-                        "icon_resources": [(1, "window_icon.ico")]
-                    }],
+        "windows": [
+            {
+                "script": APP,
+                "icon_resources": [(1, "icon.png")]
+            }
+        ],
         "zipfile": None,
         "setup_requires": ["py2exe"],
         "options": {
             "py2exe": {
-                "includes": INCLUDES,
-                "dll_excludes": WIN_DLL_INCLUDE,
-                "compressed": True
+                "compressed": True,
+                'packages': ['wx']
             }
         }
     }
@@ -50,7 +44,8 @@ elif sys.platform == "darwin":
                 "plist": {
                     'LSUIElement': True,
                 },
-                'packages': ['rumps'],
+                "iconfile": "icon.png",
+                'packages': ['wx'],
                 #"includes": INCLUDES,
             }
         }
@@ -63,7 +58,8 @@ else:
 
 setup(
     name="lifesaver",
-    description="Save your life by saving everything regularly",
+    description="Save your life by saving your file regularly",
     data_files=DATA_FILES,
+    py_modules=['system_functions', 'mac_system_functions', 'windows_system_functions'],
     **platform_options
 )
