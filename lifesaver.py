@@ -14,15 +14,24 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         super(TaskBarIcon, self).__init__()
         self.set_icon(TRAY_ICON)
         self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_down)  # When left key pressed
-        self.target_processes = []  # Processes to save
+        self.target_processes = system_functions.get_targetapps_from_config()
+        self.save_thread = None  # Save thread
         self.execute_save_thread()  # Starting save thread
+        self.is_run_at_startup = system_functions.is_run_at_startup()
 
     def CreatePopupMenu(self):
         main_menu = wx.Menu()
-        targetapp_menu = self.make_targetapp_menu()
+        targetapp_menu = self.make_targetapp_menu()  # Creates target apps menu
 
-        main_menu.AppendMenu(100, "Target App", targetapp_menu)
+        main_menu.AppendMenu(100, "Target App", targetapp_menu)  # Add target apps menu to main menu
         main_menu.AppendSeparator()
+        run_at_startup_menu = main_menu.Append(-1, 'Run at startup', '', wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, system_functions.change_run_at_startup_to_config,
+                  id = run_at_startup_menu.GetId())
+
+        if system_functions.is_run_at_startup():
+            main_menu.Check(run_at_startup_menu.GetId(), True)
+
         exit_menu = main_menu.Append(-1, 'Exit')
         self.Bind(wx.EVT_MENU, self.on_exit, id = exit_menu.GetId())
 
@@ -43,11 +52,12 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         self.SetIcon(icon, TRAY_TOOLTIP)
 
     def on_left_down(self, event):
-        self.CreatePopupMenu()
+        self.CreatePopupMenu()  # Create menu on left mouse down
 
     def on_exit(self, event):
-        wx.CallAfter(self.Destroy)
-        self.frame.Close()
+        wx.CallAfter(self.Destroy)  # destroy Wx
+        self.frame.Close()  # Close WX frame
+        self.save_thread.cancel()  # Stops thread
 
     def set_target_app(self, name, event):
         if name in self.target_processes:
@@ -55,14 +65,12 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         else:
             self.target_processes.append(name)
 
-    def execute_save_thread(self):
-        if system_functions.get_active_window_name() in self.target_processes:
-            print('saved')
-            system_functions.press_save()
-        else:
-            print('not saved')
+        system_functions.update_targetapps_to_config(self.target_processes)
 
-        threading.Timer(10, self.execute_save_thread).start()
+    def execute_save_thread(self):
+        if system_functions.get_active_window_name() in self.target_processes: system_functions.press_save()
+        self.save_thread = threading.Timer(5, self.execute_save_thread)
+        self.save_thread.start()
 
 
 class App(wx.App):
@@ -73,6 +81,11 @@ class App(wx.App):
         return True
 
 
-if __name__ == '__main__':
+def main():
+    if system_functions.is_first_run(): system_functions.setup_app_first_run()  # Setup app when it's first run
     app = App(False)
     app.MainLoop()
+
+
+if __name__ == '__main__':
+    main()
