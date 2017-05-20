@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Min'
-import sys
+import sys, json, os
 
 if sys.platform == 'win32':
-    import windows_system_functions as win_sys_funcs
+    import windows.system_functions as win_sys_funcs
 elif sys.platform == 'darwin':
-    import mac_system_functions as mac_sys_funcs
+    import mac.system_functions as mac_sys_funcs
 
 
 def run_by_platform(win_func, mac_func, *args):
@@ -44,10 +44,7 @@ def get_data_storage_path():
 
 
 def is_first_run():
-    if sys.platform == 'win32':
-        return not win_sys_funcs.is_first_run()
-    elif sys.platform == 'darwin':
-        return not mac_sys_funcs.is_first_run()
+    return not os.path.isfile(get_data_storage_path() + '/config.json')
 
 
 def setup_app_first_run():
@@ -58,24 +55,27 @@ def setup_app_first_run():
 
 
 def get_targetapps_from_config():
-    if sys.platform == 'win32':
-        return win_sys_funcs.get_targetapps_from_config()
-    elif sys.platform == 'darwin':
-        return mac_sys_funcs.get_targetapps_from_config()
+    with open(get_data_storage_path() + '/config.json', 'r') as data_file:
+        data = json.load(data_file)
+    return data['target_apps']
 
 
 def update_targetapps_to_config(target_apps):
-    if sys.platform == 'win32':
-        win_sys_funcs.update_targetapps_to_config(target_apps)
-    elif sys.platform == 'darwin':
-        mac_sys_funcs.update_targetapps_to_config(target_apps)
+    with open(get_data_storage_path() + '/config.json', 'r') as data_file:
+        data = json.load(data_file)
+    data['target_apps'] = target_apps
+
+    with open(get_data_storage_path() + '/config.json', 'w') as data_file:
+        json.dump(data, data_file, indent = 4)
 
 
 def is_run_at_startup():
-    if sys.platform == 'win32':
-        return win_sys_funcs.is_run_at_startup()
-    elif sys.platform == 'darwin':
-        return mac_sys_funcs.is_run_at_startup()
+    with open(get_data_storage_path() + '/config.json', 'r') as data_file:
+        data = json.load(data_file)
+    if data['run_on_startup'] == 1:
+        return True
+    else:
+        return False
 
 
 def change_run_at_startup_to_config(event):
