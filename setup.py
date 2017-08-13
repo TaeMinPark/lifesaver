@@ -9,7 +9,7 @@ from setuptools import setup
 import sys
 
 APP = 'lifesaver.py'
-DATA_FILES = ['icon.png']
+DATA_FILES = ['resources/icon.png', 'resources/icon.ico']
 OPTIONS = {}
 
 
@@ -21,7 +21,7 @@ if sys.platform == "win32":
         "windows": [
             {
                 "script": APP,
-                "icon_resources": [(1, "icon.png")]
+                "icon_resources": [(1, "resources/icon.ico")]
             }
         ],
         "zipfile": None,
@@ -44,12 +44,10 @@ elif sys.platform == "darwin":
                 "plist": {
                     'LSUIElement': True,
                 },
-                "iconfile": "icon.png",
+                "iconfile": "resources/icon.ico",
                 'packages': ['wx'],
-                #"includes": INCLUDES,
             }
         }
-
     }
 else:
     platform_options = {
@@ -60,6 +58,6 @@ setup(
     name="lifesaver",
     description="Save your life by saving your file regularly",
     data_files=DATA_FILES,
-    py_modules=['system_functions', 'mac_system_functions', 'windows_system_functions'],
+    packages=['src'],
     **platform_options
 )
