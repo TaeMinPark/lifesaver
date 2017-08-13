@@ -8,7 +8,7 @@
 1. dist 폴더 안에 있는 lifesaver.zip를 다운받습니다.
 1. lifesaver.zip의 압축을 풀고 실행합니다.
 1. 작업을 할 때 자동으로 저장하고 싶은 프로그램을 클릭합니다
-![Example](/example.png)
+![Example](/resources/example.png)
 1. 축하합니다! 더 이상 파일을 날려서 자살충동을 느끼지 않아도 됩니다!
 1. 친구들에게도 공유하여 파일을 날리는 것으로부터 친구를 지켜주세요 :)
 
